@@ -47,6 +47,13 @@ bIf : {A : Set} → Boolean → A → A → A
 bIf true  x y = x
 bIf false x y = y
 
+-- Boolean equality
+
+bEq : Boolean → Boolean → Boolean
+bEq true true = true
+bEq false false = true
+bEq _ _ = false
+
 -- Greater-than on integers.
 
 iGt : (i j : ℤ) → Boolean
@@ -88,6 +95,10 @@ eval (eNot e) = case (eval e) of λ where
    _ → nothing
 eval (eOr e₁ e₂) = case (eval e₁ , eval e₂) of λ where
   (just (boolV b₁) , just (boolV b₂)) → just (boolV (bOr b₁ b₂))
+  _ → nothing
+eval (eEq e₁ e₂) = case (eval e₁ , eval e₂) of λ where
+  (just (boolV a) , just (boolV b)) → just (boolV (bEq a b))
+  (just (intV a)  , just (intV b))  → just (boolV (toBoolean (a == b)))
   _ → nothing
 
 evalPrg : Program → Maybe ℤ

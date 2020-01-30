@@ -76,6 +76,12 @@ mutual
     e₁' ← checkExp e₁ bool
     e₂' ← checkExp e₂ bool
     return (bool , eOr e₁' e₂')
+  inferExp (A.eEq e₁ e₂) = do
+    (t₁ , e₁') ← inferExp e₁
+    (t₂ , e₂') ← inferExp e₂
+    case t₁ ≟ t₂ of λ where
+      (yes refl) → return (bool , eEq e₁' e₂')
+      (no t₁≢t₂) → throwError (typeMismatch t₁ t₂ t₁≢t₂)
 
   -- Type checking.
   -- Calls inference and checks inferred type against given type.

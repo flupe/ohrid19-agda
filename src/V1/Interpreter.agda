@@ -9,6 +9,13 @@ open import Library
 open import V1.WellTypedSyntax
 open import V1.Value
 
+eq : (a : Type) → Val a → Val a → Val bool
+eq bool true true = true
+eq bool false false = true
+eq bool _ _ = false
+eq int x y = case x == y of λ where true → true
+                                    false → false
+
 -- Evaluation of expressions in fixed environment ρ.
 
 eval : ∀{t} (e : Exp t) → Val t
@@ -31,6 +38,7 @@ eval (eNot e)         = case eval e of λ where
 eval (eOr e₁ e₂)      = case eval e₁ of λ where
                           true → true
                           false → eval e₂
+eval (eEq {a} e₁ e₂) = eq a (eval e₁) (eval e₂)
 
 -- Execution of the program (main loop).
 

@@ -22,6 +22,10 @@ data Boolean : Set where
 
 {-# COMPILE GHC Boolean = data Boolean (BTrue | BFalse) #-}
 
+toBoolean : Bool → Boolean
+toBoolean true = true
+toBoolean false = false
+
 data Exp : Set where
   eInt   : (i : ℤ)          → Exp
   eBool  : (b : Boolean)    → Exp
@@ -30,10 +34,11 @@ data Exp : Set where
   eMul   : (e e' : Exp)     → Exp
   eDiv   : (e e' : Exp)     → Exp
   eGt    : (e e' : Exp)     → Exp
-  eNot   : (e : Exp)     → Exp
+  eNot   : (e : Exp)        → Exp
   eOr    : (e e' : Exp)     → Exp
   eAnd   : (e e' : Exp)     → Exp
   eCond  : (e e' e'' : Exp) → Exp
+  eEq    : (e e' : Exp)     → Exp
 
 {-# COMPILE GHC Exp = data Exp
   ( EInt
@@ -47,6 +52,7 @@ data Exp : Set where
   | EOr
   | EAnd
   | ECond
+  | EEq
   ) #-}
 
 record Program : Set where

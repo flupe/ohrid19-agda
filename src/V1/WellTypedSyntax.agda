@@ -20,6 +20,7 @@ data Exp : Type → Set where
   eNot   : (e    : Exp bool) → Exp bool
   eOr    : (e e' : Exp bool) → Exp bool
   eAnd   : (e e' : Exp bool) → Exp bool
+  eEq    : ∀ {a} → (e e' : Exp a) → Exp bool
   -- Conditionals:
   eCond  : ∀{t} (e : Exp bool) (e' e'' : Exp t) → Exp t
 
