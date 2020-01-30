@@ -69,6 +69,13 @@ mutual
     (t , e₂') ← inferExp e₂
     e₃' ← checkExp e₃ t
     return (t , eCond e₁' e₂' e₃')
+  inferExp (A.eNot e₁) = do
+    e₁' ← checkExp e₁ bool
+    return (bool , eNot e₁')
+  inferExp (A.eOr e₁ e₂) = do
+    e₁' ← checkExp e₁ bool
+    e₂' ← checkExp e₂ bool
+    return (bool , eOr e₁' e₂')
 
   -- Type checking.
   -- Calls inference and checks inferred type against given type.

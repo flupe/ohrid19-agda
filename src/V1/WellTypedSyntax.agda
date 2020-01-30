@@ -17,6 +17,8 @@ data Exp : Type → Set where
   eMul   : (e e' : Exp int)  → Exp int
   eDiv   : (e e' : Exp int)  → Exp int
   eGt    : (e e' : Exp int)  → Exp bool
+  eNot   : (e    : Exp bool) → Exp bool
+  eOr    : (e e' : Exp bool) → Exp bool
   eAnd   : (e e' : Exp bool) → Exp bool
   -- Conditionals:
   eCond  : ∀{t} (e : Exp bool) (e' e'' : Exp t) → Exp t

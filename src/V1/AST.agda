@@ -30,6 +30,8 @@ data Exp : Set where
   eMul   : (e e' : Exp)     → Exp
   eDiv   : (e e' : Exp)     → Exp
   eGt    : (e e' : Exp)     → Exp
+  eNot   : (e : Exp)     → Exp
+  eOr    : (e e' : Exp)     → Exp
   eAnd   : (e e' : Exp)     → Exp
   eCond  : (e e' e'' : Exp) → Exp
 
@@ -41,6 +43,8 @@ data Exp : Set where
   | EMul
   | EDiv
   | EGt
+  | ENot
+  | EOr
   | EAnd
   | ECond
   ) #-}

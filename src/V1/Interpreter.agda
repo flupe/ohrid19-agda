@@ -22,9 +22,15 @@ eval (eAnd e₁ e₂)     = case eval e₁ of λ where
 eval (eCond e₁ e₂ e₃) = case eval e₁ of λ where
                           true  → eval e₂
                           false → eval e₃
-eval (eMinus e₁ e₂) = eval e₁ - eval e₂
-eval (eMul e₁ e₂) =  eval e₁ * eval e₂
-eval (eDiv e₁ e₂) =  eval e₁ * eval e₂ -- TODO
+eval (eMinus e₁ e₂)   = eval e₁ - eval e₂
+eval (eMul e₁ e₂)     =  eval e₁ * eval e₂
+eval (eDiv e₁ e₂)     =  eval e₁ * eval e₂ -- TODO
+eval (eNot e)         = case eval e of λ where
+                          true → false
+                          false → true
+eval (eOr e₁ e₂)      = case eval e₁ of λ where
+                          true → true
+                          false → eval e₂
 
 -- Execution of the program (main loop).
 
