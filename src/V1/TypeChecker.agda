@@ -44,6 +44,18 @@ mutual
     e₁' ← checkExp e₁ int
     e₂' ← checkExp e₂ int
     return (int , ePlus e₁' e₂')
+  inferExp (A.eMinus e₁ e₂) = do
+    e₁' ← checkExp e₁ int
+    e₂' ← checkExp e₂ int
+    return (int , eMinus e₁' e₂')
+  inferExp (A.eMul e₁ e₂) = do
+    e₁' ← checkExp e₁ int
+    e₂' ← checkExp e₂ int
+    return (int , eMul e₁' e₂')
+  inferExp (A.eDiv e₁ e₂) = do
+    e₁' ← checkExp e₁ int
+    e₂' ← checkExp e₂ int
+    return (int , eDiv e₁' e₂')
   inferExp (A.eGt   e₁ e₂) = do
     e₁' ← checkExp e₁ int
     e₂' ← checkExp e₂ int

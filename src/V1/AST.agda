@@ -26,6 +26,9 @@ data Exp : Set where
   eInt   : (i : ℤ)          → Exp
   eBool  : (b : Boolean)    → Exp
   ePlus  : (e e' : Exp)     → Exp
+  eMinus : (e e' : Exp)     → Exp
+  eMul   : (e e' : Exp)     → Exp
+  eDiv   : (e e' : Exp)     → Exp
   eGt    : (e e' : Exp)     → Exp
   eAnd   : (e e' : Exp)     → Exp
   eCond  : (e e' e'' : Exp) → Exp
@@ -34,6 +37,9 @@ data Exp : Set where
   ( EInt
   | EBool
   | EPlus
+  | EMinus
+  | EMul
+  | EDiv
   | EGt
   | EAnd
   | ECond

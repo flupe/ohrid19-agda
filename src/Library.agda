@@ -6,6 +6,7 @@ open import Data.Bool.Base                        public using (Bool; true; fals
 open import Data.Char.Base                        public using (Char)
 open import Data.Empty                            public using (⊥)
 open import Data.Integer.Base                     public using (ℤ; -[1+_]; +_; _+_; _-_; _*_)
+open import Data.Integer.DivMod                   public using (_div_)
 open import Data.List.Base                        public using (List; []; _∷_; _++_) hiding (module List)
 open import Data.List.All                         public using ([]; _∷_)
 open import Data.Maybe.Base                       public using (Maybe; nothing; just)

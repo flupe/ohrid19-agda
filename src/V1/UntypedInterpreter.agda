@@ -59,6 +59,15 @@ eval (eBool b) = just (boolV b)
 eval (ePlus e₁ e₂) = case (eval e₁ , eval e₂) of λ where
   (just (intV i) , just (intV j)) → just (intV (i + j))
   _ → nothing
+eval (eMinus e₁ e₂) = case (eval e₁ , eval e₂) of λ where
+  (just (intV i) , just (intV j)) → just (intV (i - j))
+  _ → nothing
+eval (eMul e₁ e₂) = case (eval e₁ , eval e₂) of λ where
+  (just (intV i) , just (intV j)) → just (intV (i * j))
+  _ → nothing
+eval (eDiv e₁ e₂) = case (eval e₁ , eval e₂) of λ where
+  (just (intV i) , just (intV j)) → just (intV (i * j)) -- TODO
+  _ → nothing
 eval (eGt e₁ e₂) = case (eval e₁ , eval e₂) of λ where
   (just (intV i) , just (intV j)) → just (boolV (iGt i j))
   _ → nothing
