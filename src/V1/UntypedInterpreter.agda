@@ -8,6 +8,7 @@ module V1.UntypedInterpreter where
 
 open import Library
 open import V1.AST
+open Integer using (_div'_)
 
 -- Untyped values.
 
@@ -79,7 +80,7 @@ eval (eMul e₁ e₂) = case (eval e₁ , eval e₂) of λ where
   (just (intV i) , just (intV j)) → just (intV (i * j))
   _ → nothing
 eval (eDiv e₁ e₂) = case (eval e₁ , eval e₂) of λ where
-  (just (intV i) , just (intV j)) → just (intV (i * j)) -- TODO
+  (just (intV i) , just (intV j)) → just (intV (i div' j))
   _ → nothing
 eval (eGt e₁ e₂) = case (eval e₁ , eval e₂) of λ where
   (just (intV i) , just (intV j)) → just (boolV (iGt i j))

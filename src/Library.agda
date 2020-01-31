@@ -43,10 +43,17 @@ module Character where
 
 module Integer where
   open import Data.Integer public
+  open import Data.Nat using () renaming (_≟_ to _ℕ≟_)
+  open import Relation.Nullary.Decidable using (fromWitnessFalse)
 
   _<=_ : (i j : ℤ) → Bool
   i <= j = ⌊ i ≤? j ⌋
 
+  _div'_ : ℤ → ℤ → ℤ
+  a div' b with (∣ b ∣) ℕ≟ 0
+  ...         | yes _    = +0
+  ...         | no  b≢0 = _div_ a b {fromWitnessFalse b≢0}
+  
 module String where
   open import Data.String.Base public
 

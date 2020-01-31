@@ -8,6 +8,7 @@ module V1.Interpreter where
 open import Library
 open import V1.WellTypedSyntax
 open import V1.Value
+open Integer using (_div'_)
 
 eq : (a : Type) → Val a → Val a → Val bool
 eq bool true true = true
@@ -31,7 +32,7 @@ eval (eCond e₁ e₂ e₃) = case eval e₁ of λ where
                           false → eval e₃
 eval (eMinus e₁ e₂)   = eval e₁ - eval e₂
 eval (eMul e₁ e₂)     =  eval e₁ * eval e₂
-eval (eDiv e₁ e₂)     =  eval e₁ * eval e₂ -- TODO
+eval (eDiv e₁ e₂)     =  eval e₁ div' eval e₂
 eval (eNot e)         = case eval e of λ where
                           true → false
                           false → true
