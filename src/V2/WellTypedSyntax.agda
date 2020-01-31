@@ -29,12 +29,14 @@ data Exp (Γ : Cxt) : Type → Set where
   eVar  : ∀{t}    (x : Var Γ t)                    → Exp Γ t
 -- Well-typed declarations (extending the context).
 
-data Decl (Γ : Cxt) (t : Type) : Set where
-  dInit : (e : Exp Γ t) → Decl Γ t
+data Decl (Γ : Cxt) : Cxt → Set where
+  dInit : ∀ {t} → (e : Exp Γ t) → Decl Γ (t ∷ Γ)
+  dIncr : Var Γ int             → Decl Γ Γ
+  dAdd  : Var Γ int → Exp Γ int → Decl Γ Γ
 
 data Decls (Γ : Cxt) : Cxt → Set where
   []  : Decls Γ Γ
-  _∷_ : ∀{t Γ′} (s : Decl Γ t) (ss : Decls (t ∷ Γ) Γ′) → Decls Γ Γ′
+  _∷_ : ∀ {Γ₁ Γ₂} (s : Decl Γ Γ₁) (ss : Decls Γ₁ Γ₂) → Decls Γ Γ₂
 
 -- A program is a list of statements and a final expression.
 

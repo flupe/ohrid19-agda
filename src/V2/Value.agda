@@ -25,6 +25,10 @@ lookupEnv : ∀ {Γ t} → Env Γ → Var Γ t → Val t
 lookupEnv (v ∷ ρ) here      = v
 lookupEnv (v ∷ ρ) (there x) = lookupEnv ρ x
 
+writeEnv : ∀ {Γ t} → Env Γ → Var Γ t → Val t → Env Γ
+writeEnv (_ ∷ ρ) here      v = v ∷ ρ
+writeEnv (p ∷ ρ) (there x) v = p ∷ writeEnv ρ x v
+
 -- Semantics of operations.
 
 -- Boolean negation.

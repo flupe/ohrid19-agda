@@ -47,15 +47,17 @@ data Exp : Set where
   | ECond
   ) #-}
 
-record Decl : Set where
-  constructor dInit
-  field declType : Type
-        declId   : Id
-        declExp  : Exp
+data Decl : Set where
+  dInit : Type → Id → Exp → Decl
+  dIncr : Id              → Decl
+  dAdd  : Id        → Exp → Decl
+  
 open Decl public
 
 {-# COMPILE GHC Decl = data Decl
   ( DInit
+  | DIncr
+  | DAdd
   ) #-}
 
 record Program : Set where

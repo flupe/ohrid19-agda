@@ -30,8 +30,10 @@ open EvalExp
 
 -- Execution of declarations, extending the environment.
 
-execDecl : ∀{Γ t} (d : Decl Γ t) (ρ : Env Γ) → Env (t ∷ Γ)
-execDecl (dInit e) ρ = eval ρ e ∷ ρ
+execDecl : ∀{Γ Γ'} (d : Decl Γ Γ') (ρ : Env Γ) → Env Γ'
+execDecl (dInit e) ρ  = eval ρ e ∷ ρ
+execDecl (dIncr x) ρ  = writeEnv ρ x ( lookupEnv ρ x + + 1)
+execDecl (dAdd x e) ρ = writeEnv ρ x (lookupEnv ρ x + eval ρ e)
 
 execDecls : ∀{Γ Γ'} (ds : Decls Γ Γ') (ρ : Env Γ) → Env Γ'
 execDecls []       ρ = ρ

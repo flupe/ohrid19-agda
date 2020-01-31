@@ -183,22 +183,41 @@ module CheckDeclarations where
   -- Computing the final context.
 
   Next : (Γ : Cxt) (s : A.Decl) → Cxt
-  Next Γ s = A.declType s ∷ Γ
-
+  Next Γ (A.dInit t _ _) = t ∷ Γ
+  Next Γ _ = Γ
+  
   Nexts : (Γ : Cxt) (ss : List A.Decl) → Cxt
   Nexts = foldl Next
 
   mutual
 
-    -- Checking a single declaration.
+    checkDefined : ∀ {Γ} → Name → (t : Type) → TCDecl Γ Γ (Var Γ t)
+    checkDefined x t .runTCDecl γ =
+      case lookupVar γ x of λ where
+        (ok (t' , x')) →
+          case t' ≟ t of λ where
+            (yes refl) → ok (x' , γ)
+            (no t'≢t) → throwError (typeMismatch t' t t'≢t)
+        (fail err) → fail err
 
-    checkDecl : ∀ {Γ} (d : A.Decl) (let t = A.declType d)
-      → TCDecl Γ (t ∷ Γ) (Decl Γ t)
+    -- Checking a single declaration.
+    
+    checkDecl : ∀ {Γ} (d : A.Decl) (let Γ' = Next Γ d)
+              → TCDecl Γ Γ' (Decl Γ Γ')
 
     checkDecl (A.dInit t x e) = do
       e' ← lift $ checkExp e t
       addVar (idToName x) t
       return (dInit e')
+
+    checkDecl (A.dIncr x) = do
+      x' ← checkDefined (idToName x) int
+      return (dIncr x')
+
+    checkDecl (A.dAdd x e) = do
+      x' ← checkDefined (idToName x) int
+      e' <- lift $ checkExp e int
+      return (dAdd x' e')
 
     -- Checking a list of declarations.
 
@@ -226,7 +245,6 @@ module CheckDeclarations where
 
 checkProgram : (prg : A.Program) → Error Program
 checkProgram prg = proj₁ <$> CheckDeclarations.checkProgram prg .runTCDecl []
-
 
 -- -}
 -- -}
