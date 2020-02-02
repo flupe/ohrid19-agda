@@ -120,6 +120,11 @@ execDecl (dAdd x e) ρ =
     (just (intV a) , just (intV b)) → just $ updateEnv x (intV (a + b)) ρ
     _                               → nothing
 
+execDecl (dDecl x t) ρ = nothing
+execDecl (dAssign x e) ρ = case (lookupId ρ x , eval ρ e) of λ where
+  (just _ , just v) → just $ updateEnv x v ρ
+  _                 → nothing
+
 -- Execution of declarations returns the extended environment.
 
 execDecls : List Decl → Env → Maybe Env

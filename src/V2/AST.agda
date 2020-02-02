@@ -48,14 +48,18 @@ data Exp : Set where
   ) #-}
 
 data Decl : Set where
-  dInit : Type → Id → Exp → Decl
-  dIncr : Id              → Decl
-  dAdd  : Id        → Exp → Decl
+  dDecl   : Type → Id       → Decl -- Unitialized declaration
+  dInit   : Type → Id → Exp → Decl -- Initialized declaration
+  dAssign :        Id → Exp → Decl -- Redefining variable
+  dIncr   :        Id       → Decl
+  dAdd    :        Id → Exp → Decl
   
 open Decl public
 
 {-# COMPILE GHC Decl = data Decl
-  ( DInit
+  ( DDecl
+  | DInit
+  | DAssign
   | DIncr
   | DAdd
   ) #-}

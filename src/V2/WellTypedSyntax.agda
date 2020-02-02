@@ -30,9 +30,10 @@ data Exp (Γ : Cxt) : Type → Set where
 -- Well-typed declarations (extending the context).
 
 data Decl (Γ : Cxt) : Cxt → Set where
-  dInit : ∀ {t} → (e : Exp Γ t) → Decl Γ (t ∷ Γ)
-  dIncr : Var Γ int             → Decl Γ Γ
-  dAdd  : Var Γ int → Exp Γ int → Decl Γ Γ
+  dInit   : ∀ {t}           → Exp Γ t   → Decl Γ (t ∷ Γ)
+  dAssign : ∀ {t} → Var Γ t → Exp Γ t   → Decl Γ Γ 
+  dIncr   : Var Γ int                   → Decl Γ Γ
+  dAdd    : Var Γ int       → Exp Γ int → Decl Γ Γ
 
 data Decls (Γ : Cxt) : Cxt → Set where
   []  : Decls Γ Γ

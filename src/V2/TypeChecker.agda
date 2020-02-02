@@ -5,6 +5,7 @@
 module V2.TypeChecker where
 
 open import Library
+open import Data.Sum
 
 import V2.AST as A
 open import V2.WellTypedSyntax
@@ -31,14 +32,16 @@ TCCxt Γ = AssocList Name Γ
 -- only of well-typedness in case of success.
 
 data TypeError : Set where
-  unboundVariable        : Name → TypeError
-  typeMismatch           : (tinf texp : Type)  → tinf ≢ texp → TypeError
+  alreadyDeclaredVariable : Name → TypeError
+  unboundVariable         : Name → TypeError
+  typeMismatch            : (tinf texp : Type)  → tinf ≢ texp → TypeError
 
 instance
   PrintError : Print TypeError
   print {{PrintError}} = λ where
-    (unboundVariable x)        → "unbound variable " String.++ x
-    (typeMismatch tinf texp _) → String.concat $
+    (alreadyDeclaredVariable x) → "already declared variable " String.++ x
+    (unboundVariable x)         → "unbound variable " String.++ x
+    (typeMismatch tinf texp _)  → String.concat $
       "type mismatch: expected " ∷ print texp ∷
       ", but inferred " ∷ print tinf ∷ []
 
@@ -58,7 +61,6 @@ lookupVar {t ∷ Γ} (x' ∷ γ) x = case x ≟ x' of λ where
   (no _)     → case lookupVar γ x of λ where
     (ok (t , i)) → ok (t , there i)
     (fail err)   → fail err
-
 
 -- Checking expressions
 ---------------------------------------------------------------------------
@@ -153,7 +155,7 @@ module CheckDeclarations where
     bindTCDecl m k .runTCDecl γ =
       case m .runTCDecl γ of λ where
         (fail err)    → fail err
-        (ok (a , γ')) → k a .runTCDecl γ'
+        (ok (a , γ′)) → k a .runTCDecl γ′
 
 
   instance
@@ -180,71 +182,91 @@ module CheckDeclarations where
   addVar : ∀{Γ} (x : Name) t → TCDecl Γ (t ∷ Γ) ⊤
   addVar {Γ = Γ} x t .runTCDecl γ = ok (_ , (t ↦ x ∷ γ))
 
-  -- Computing the final context.
-
-  Next : (Γ : Cxt) (s : A.Decl) → Cxt
-  Next Γ (A.dInit t _ _) = t ∷ Γ
-  Next Γ _ = Γ
-  
-  Nexts : (Γ : Cxt) (ss : List A.Decl) → Cxt
-  Nexts = foldl Next
-
   mutual
 
     checkDefined : ∀ {Γ} → Name → (t : Type) → TCDecl Γ Γ (Var Γ t)
     checkDefined x t .runTCDecl γ =
       case lookupVar γ x of λ where
-        (ok (t' , x')) →
-          case t' ≟ t of λ where
-            (yes refl) → ok (x' , γ)
-            (no t'≢t) → throwError (typeMismatch t' t t'≢t)
+        (ok (t′ , x′)) →
+          case t′ ≟ t of λ where
+            (yes refl) → ok (x′ , γ)
+            (no t′≢t) → throwError (typeMismatch t′ t t′≢t)
         (fail err) → fail err
 
-    -- Checking a single declaration.
-    
-    checkDecl : ∀ {Γ} (d : A.Decl) (let Γ' = Next Γ d)
-              → TCDecl Γ Γ' (Decl Γ Γ')
+    -- bypassing TCDecl for now
 
-    checkDecl (A.dInit t x e) = do
-      e' ← lift $ checkExp e t
-      addVar (idToName x) t
-      return (dInit e')
+    testDecl : ∀ {Γ Δ}
+         → TCCxt Γ × TCCxt Δ
+         → (d : A.Decl)
+         → Error ((Σ Cxt (λ Γ′ → TCCxt Γ′ × Maybe (Decl Γ Γ′))))
 
-    checkDecl (A.dIncr x) = do
-      x' ← checkDefined (idToName x) int
-      return (dIncr x')
+    testDecl {Γ} {Δ} (γ , δ) (A.dDecl t x) = do
+      let x′ = idToName x
+      case lookupVar δ x′ of λ where
+        (ok _)   → throwError (alreadyDeclaredVariable x′)
+        (fail _) → ok (t ∷ Δ , t ↦ x′ ∷ δ , nothing)
 
-    checkDecl (A.dAdd x e) = do
-      x' ← checkDefined (idToName x) int
-      e' <- lift $ checkExp e int
-      return (dAdd x' e')
+    testDecl {Γ} (γ , δ) (A.dInit t x e) = do
+      e′ ← CheckExpressions.checkExp γ e t
+      let x′ = idToName x
+      case lookupVar δ x′ of λ where
+        (ok _)   → throwError (alreadyDeclaredVariable x′)
+        (fail _) → ok (t ∷ Γ , t ↦ x′ ∷ γ , (just $ dInit e′))
 
-    -- Checking a list of declarations.
+    testDecl {Γ} {Δ} (γ , δ) (A.dAssign x e) = do
+      let x′ = idToName x
+      case lookupVar γ x′ of λ where
+        (ok (t , x″)) → do
+          e′ ← CheckExpressions.checkExp γ e t
+          return (Γ , γ , just (dAssign x″ e′))
 
-    checkDecls : ∀ {Γ} (ds : List A.Decl) (let Γ' = Nexts Γ ds)
-      → TCDecl Γ Γ' (Decls Γ Γ')
+        (fail _) →
+          case lookupVar δ x′ of λ where
+            (ok (t , _)) → do
+              e′ ← CheckExpressions.checkExp γ e t
+              return (t ∷ Γ , t ↦ x′ ∷ γ , just (dInit e′))
 
-    checkDecls []       = return []
-    checkDecls (d ∷ ds) = do
-      d' ← checkDecl d
-      (d' ∷_) <$> checkDecls ds
+            (fail _) → throwError (unboundVariable x′)
 
-  -- Checking the program in TCDecl.
+    testDecl {Γ} (γ , δ) (A.dIncr x) = do
+      (x′ , _) ← checkDefined (idToName x) int .runTCDecl γ
+      return (Γ , γ , just (dIncr x′))
+
+    testDecl {Γ} (γ , δ) (A.dAdd x e) = do
+      (x′ , _) ← checkDefined (idToName x) int .runTCDecl γ
+      e′ ← CheckExpressions.checkExp γ e int
+      return (Γ , γ , just (dAdd x′ e′))
+
+    testDecls : ∀ {Γ Δ} → TCCxt Γ × TCCxt Δ → List A.Decl → Error (Σ Cxt (λ Γ′ → TCCxt Γ′ × Decls Γ Γ′))
+    testDecls {Γ} (γ , _) [] = return (Γ , (γ , []))
+    testDecls (γ , δ) (x ∷ xs) =
+      case testDecl (γ , δ) x of λ where
+        (fail err) → fail err
+
+        -- new variables have been initiated
+        (ok (Γ′ , (γ′ , just d))) → do
+          (Γ″ , (γ‴ , decls)) ← testDecls (γ′ , δ) xs
+          return (Γ″ , (γ‴ , d ∷ decls))
+
+        -- new variables have been declared
+        (ok (Δ′ , (δ′ , nothing))) → do
+          (Γ″ , (γ″ , decls)) ← testDecls (γ , δ′) xs
+          return (Γ″ , (γ″ , decls))
+
 
   checkProgram : (prg : A.Program)
-    → let Γ = Nexts [] (A.theDecls prg)
-      in  TCDecl [] Γ Program
+    → Error Program
 
   checkProgram (A.program ds e) = do
-    ds' ← checkDecls ds
-    e'  ← lift $ checkExp e int
-    return (program ds' e')
+    (Γ , (γ , ds′)) ← testDecls ([] , []) ds
+    e′  ← CheckExpressions.checkExp γ e int
+    return (program ds′ e′)
 
 -- Checking the program.
 ---------------------------------------------------------------------------
 
 checkProgram : (prg : A.Program) → Error Program
-checkProgram prg = proj₁ <$> CheckDeclarations.checkProgram prg .runTCDecl []
+checkProgram prg = CheckDeclarations.checkProgram prg
 
 -- -}
 -- -}

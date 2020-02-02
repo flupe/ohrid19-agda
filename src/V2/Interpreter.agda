@@ -34,6 +34,7 @@ execDecl : ∀{Γ Γ'} (d : Decl Γ Γ') (ρ : Env Γ) → Env Γ'
 execDecl (dInit e) ρ  = eval ρ e ∷ ρ
 execDecl (dIncr x) ρ  = writeEnv ρ x ( lookupEnv ρ x + + 1)
 execDecl (dAdd x e) ρ = writeEnv ρ x (lookupEnv ρ x + eval ρ e)
+execDecl (dAssign x e) ρ = writeEnv ρ x (eval ρ e)
 
 execDecls : ∀{Γ Γ'} (ds : Decls Γ Γ') (ρ : Env Γ) → Env Γ'
 execDecls []       ρ = ρ

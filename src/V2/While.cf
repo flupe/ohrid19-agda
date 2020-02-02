@@ -13,9 +13,11 @@
 
 Prg.    Program ::= "int" "main" "(" ")" "{" [Decl] "printInt" Exp4 ";" "}";
 
-DInit.  Decl ::= Type Ident "=" Exp ";";
-DIncr.  Decl ::= Ident "++" ";";
-DAdd.   Decl ::= Ident "+=" Exp4 ";";
+DDecl.   Decl ::= Type Ident ";";
+DInit.   Decl ::= Type Ident "=" Exp ";";
+DAssign. Decl ::= Ident      "=" Exp ";";
+DIncr.   Decl ::= Ident "++" ";";
+DAdd.    Decl ::= Ident "+=" Exp4 ";";
 
 terminator Decl "";
 
