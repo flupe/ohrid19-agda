@@ -17,9 +17,10 @@ DInit.  Decl ::= Type Ident "=" Exp ";";
 
 terminator Decl "";
 
-SAss.   Stm  ::= Ident "=" Exp ";";
-SWhile. Stm  ::= "while" Exp5 "{" [Stm] "}";
-SIfElse. Stm ::= "if" Exp5 "{" [Stm] "}" "else" "{" [Stm] "}";
+SAss.     Stm  ::= Ident "=" Exp ";";
+SWhile.   Stm  ::= "while" Exp5 "{" [Stm] "}";
+SIfElse.  Stm  ::= "if" Exp5 "{" [Stm] "}" "else" "{" [Stm] "}";
+SDoWhile. Stm  ::= "do" "{" [Stm] "}" "while" Exp5 ";";
 
 terminator Stm "";
 

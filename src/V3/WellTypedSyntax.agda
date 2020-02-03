@@ -42,9 +42,10 @@ data Decls (Γ : Cxt) : Cxt → Set where
 mutual
 
   data Stm (Γ : Cxt) : Set where
-    sAss    : ∀{t} (x : Var Γ t) (e : Exp Γ t)               → Stm Γ
-    sWhile  : ∀ (e : Exp Γ bool) (s  : Stms Γ)               → Stm Γ
-    sIfElse : ∀ (e : Exp Γ bool) (s₁ : Stms Γ) (s₂ : Stms Γ) → Stm Γ
+    sAss     : ∀{t} (x : Var Γ t) (e : Exp Γ t)               → Stm Γ
+    sWhile   : ∀ (e : Exp Γ bool) (s  : Stms Γ)               → Stm Γ
+    sIfElse  : ∀ (e : Exp Γ bool) (s₁ : Stms Γ) (s₂ : Stms Γ) → Stm Γ
+    sDoWhile : ∀ (s  : Stms Γ) (e : Exp Γ bool)               → Stm Γ
 
   Stms : Cxt → Set
   Stms Γ = List (Stm Γ)

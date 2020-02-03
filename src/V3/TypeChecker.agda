@@ -134,6 +134,12 @@ module CheckExpressions {Γ : Cxt} (γ : TCCxt Γ) where
       ss₂′ ← checkStms ss₂
       return (sIfElse e′ ss₁′ ss₂′)
 
+    checkStm (A.sDoWhile ss e) = do
+      ss′ ← checkStms ss
+      e′  ← checkExp e bool
+      return (sDoWhile ss′ e′)
+      
+
     -- Checking a list of statements.
 
     checkStms : (ss : List A.Stm) → Error (Stms Γ)

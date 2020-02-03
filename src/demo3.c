@@ -9,5 +9,9 @@ int main () {
     y = 5;
   }
 
-  printInt y;
+  do {
+    x = x + 2;
+  } while (y > x);
+
+  printInt x;
 }

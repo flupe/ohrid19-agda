@@ -148,6 +148,15 @@ module ExecStm where
         (just (boolV false)) → execStms fuel ss' ρ
         _                    → nothing
 
+    execStm 0          (sDoWhile ss e) ρ = nothing
+    execStm (suc fuel) (sDoWhile ss e) ρ = case execStms fuel ss ρ of λ where
+      (just ρ′) → case eval ρ′ e of λ where
+        (just (boolV true))  → execStm fuel (sDoWhile ss e) ρ′
+        (just (boolV false)) → just ρ′
+        _                    → nothing
+      nothing   → nothing
+
+
     -- Execution of a statement sequence, passes the fuel
     -- to every statement.
 

@@ -59,14 +59,16 @@ open Decl public
   ) #-}
 
 data Stm : Set where
-  sAss    : (x : Id) (e : Exp)            → Stm
-  sIfElse : (e : Exp) (ss ss' : List Stm) → Stm
-  sWhile  : (e : Exp) (ss : List Stm)     → Stm
+  sAss     : (x : Id) (e : Exp)            → Stm
+  sIfElse  : (e : Exp) (ss ss' : List Stm) → Stm
+  sWhile   : (e : Exp) (ss : List Stm)     → Stm
+  sDoWhile : (ss : List Stm) (e : Exp)     → Stm
 
 {-# COMPILE GHC Stm = data Stm
   ( SAss
-  |  SIfElse
+  | SIfElse
   | SWhile
+  | SDoWhile
   ) #-}
 
 record Program : Set where

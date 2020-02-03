@@ -112,6 +112,13 @@ module ExecStm {Γ : Cxt} where
       -- The recursive call needs to be guarded:
       λ{ .runExec γ .force → later' $ execStm (sWhile e ss) .runExec γ }
 
+    execStm (sDoWhile ss e) = do
+      execStms ss
+      true ← evalExp e where
+        false → return _
+      -- The recursive call needs to be guarded:
+      λ{ .runExec γ .force → later' $ execStm (sDoWhile ss e) .runExec γ }
+
     -- Executing a list of statments.
 
     execStms : ∀{i} (ss : Stms Γ) → Exec i ⊤
