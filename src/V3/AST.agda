@@ -25,6 +25,13 @@ data Type : Set where
 data Boolean : Set where
   true false : Boolean
 
+instance
+  eqBoolean : Eq Boolean
+  _≟_ ⦃ eqBoolean ⦄ true  true  = yes refl
+  _≟_ ⦃ eqBoolean ⦄ false false = yes refl
+  _≟_ ⦃ eqBoolean ⦄ true  false = no λ ()
+  _≟_ ⦃ eqBoolean ⦄ false true  = no λ ()
+
 {-# COMPILE GHC Boolean = data Boolean (BTrue | BFalse) #-}
 
 data Exp : Set where
@@ -58,17 +65,32 @@ open Decl public
   ( DInit
   ) #-}
 
-data Stm : Set where
-  sAss     : (x : Id) (e : Exp)            → Stm
-  sIfElse  : (e : Exp) (ss ss' : List Stm) → Stm
-  sWhile   : (e : Exp) (ss : List Stm)     → Stm
-  sDoWhile : (ss : List Stm) (e : Exp)     → Stm
+record SwitchCase : Set
+data Stm : Set
+
+record SwitchCase where
+  inductive
+  constructor sCase
+  field caseExp  : Exp
+        caseStms : List Stm
+
+{-# COMPILE GHC SwitchCase = data SwitchCase
+  ( SCase
+  ) #-}
+
+data Stm where
+  sAss     : (x : Id) (e : Exp)               → Stm
+  sIfElse  : (e : Exp) (ss ss' : List Stm)    → Stm
+  sWhile   : (e : Exp) (ss : List Stm)        → Stm
+  sDoWhile : (ss : List Stm) (e : Exp)        → Stm
+  sSwitch  : (e : Exp) (cs : List SwitchCase) → Stm
 
 {-# COMPILE GHC Stm = data Stm
   ( SAss
   | SIfElse
   | SWhile
   | SDoWhile
+  | SSwitch
   ) #-}
 
 record Program : Set where

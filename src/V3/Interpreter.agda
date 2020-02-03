@@ -119,6 +119,18 @@ module ExecStm {Γ : Cxt} where
       -- The recursive call needs to be guarded:
       λ{ .runExec γ .force → later' $ execStm (sDoWhile ss e) .runExec γ }
 
+    execStm (sSwitch e cs) = do
+      e′ ← evalExp e
+      execSwitch e′ cs
+
+    execSwitch : ∀{t i} → Val t → List (SwitchCase Γ t) → Exec i ⊤
+    execSwitch e [] = return _
+    execSwitch e (dCase v ss ∷ cs) = do
+      v′ ← evalExp v
+      case e == v′ of λ where
+        true  → execStms ss
+        false → execSwitch e cs
+
     -- Executing a list of statments.
 
     execStms : ∀{i} (ss : Stms Γ) → Exec i ⊤

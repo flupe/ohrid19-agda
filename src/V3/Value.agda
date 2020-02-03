@@ -3,6 +3,7 @@
 module V3.Value where
 
 open import Library
+open import V3.AST using (eqBoolean)
 open import V3.WellTypedSyntax
 
 -- Well-typed values.
@@ -33,9 +34,18 @@ bNot : Boolean → Boolean
 bNot true  = false
 bNot false = true
 
+toBool : Boolean → Bool
+toBool true = true
+toBool false = false
+
 -- Greater-than on integers.
 
 iGt : (i j : ℤ) → Boolean
 iGt i j = case i Integer.<= j of λ where
   false → true
   true  → false
+
+instance
+  eqVal : ∀{t} → Eq (Val t)
+  _≟_ ⦃ eqVal {bool} ⦄ = _≟_ ⦃ eqBoolean ⦄
+  _≟_ ⦃ eqVal {int} ⦄  = _≟_ ⦃ eqℤ ⦄

@@ -13,5 +13,15 @@ int main () {
     x = x + 2;
   } while (y > x);
 
+  switch (x) {
+    case 6:
+      x = 4;
+      break;
+
+    case 3:
+      x = 9;
+      break;
+  }
+
   printInt x;
 }

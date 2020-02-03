@@ -21,8 +21,12 @@ SAss.     Stm  ::= Ident "=" Exp ";";
 SWhile.   Stm  ::= "while" Exp5 "{" [Stm] "}";
 SIfElse.  Stm  ::= "if" Exp5 "{" [Stm] "}" "else" "{" [Stm] "}";
 SDoWhile. Stm  ::= "do" "{" [Stm] "}" "while" Exp5 ";";
+SSwitch.  Stm  ::= "switch" Exp5 "{" [SwitchCase] "}";
+
+SCase.    SwitchCase ::= "case" Exp4 ":" [Stm] "break" ";";
 
 terminator Stm "";
+terminator SwitchCase "";
 
 -- The terminator pragma adds the list category and its two rules:
 --

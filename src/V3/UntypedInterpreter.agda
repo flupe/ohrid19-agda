@@ -21,6 +21,18 @@ instance
     (intV i)  → print i
     (boolV b) → print b
 
+  eqVal : Eq Val
+  _≟_ ⦃ eqVal ⦄ (intV a) (intV b) = case a ≟ b of λ where
+    (yes a≡b) → yes (cong intV a≡b)
+    (no a≢b)  → no (a≢b ∘ λ where refl → refl)
+
+  _≟_ ⦃ eqVal ⦄ (boolV a) (boolV b) = case a ≟ b of λ where
+    (yes a≡b) → yes (cong boolV a≡b)
+    (no a≢b)  → no (a≢b ∘ λ where refl → refl)
+
+  _≟_ ⦃ eqVal ⦄ (intV a) (boolV b) = no λ ()
+  _≟_ ⦃ eqVal ⦄ (boolV a) (intV b) = no λ ()
+
 -- Poor man's environments (association list).
 
 Env : Set
@@ -155,6 +167,21 @@ module ExecStm where
         (just (boolV false)) → just ρ′
         _                    → nothing
       nothing   → nothing
+
+    execStm fuel (sSwitch e cs) ρ = case eval ρ e of λ where
+      (just e′) → execSwitch fuel e′ ρ cs
+      (nothing) → nothing
+
+    execSwitch : (fuel : ℕ) → Val → Env → List SwitchCase → Maybe Env
+    execSwitch (suc fuel) e ρ (sCase v ss ∷ cs) =
+      case eval ρ v of λ where
+        (just v′) →
+          if e == v′
+          then execStms fuel ss ρ
+          else execSwitch fuel e ρ cs
+        (nothing) → nothing
+
+    execSwitch _          e ρ _ = nothing
 
 
     -- Execution of a statement sequence, passes the fuel

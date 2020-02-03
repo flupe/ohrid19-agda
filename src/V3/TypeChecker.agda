@@ -138,7 +138,26 @@ module CheckExpressions {Γ : Cxt} (γ : TCCxt Γ) where
       ss′ ← checkStms ss
       e′  ← checkExp e bool
       return (sDoWhile ss′ e′)
-      
+
+    checkStm (A.sSwitch e cs) =  do
+      (t , e′) ← inferExp e
+      cs′      ← checkCases cs t
+      return (sSwitch e′ cs′)
+
+
+    -- Checking a switch case
+
+    checkCase : (c : A.SwitchCase) (t : Type) → Error (SwitchCase Γ t)
+    checkCase (A.sCase e ss) t = do
+      e′  ← checkExp e t
+      ss′ ← checkStms ss
+      return (dCase e′ ss′)
+
+    checkCases : (cs : List A.SwitchCase) (t : Type) → Error (List (SwitchCase Γ t))
+    checkCases [] t = return []
+    checkCases (c ∷ cs) t =  do
+      c′ ← checkCase c t
+      (c′ ∷_) <$> checkCases cs t
 
     -- Checking a list of statements.
 
